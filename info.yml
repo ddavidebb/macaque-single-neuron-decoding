@@ -1,0 +1,33 @@
+###################################################
+# Useful information of the datasets used in 'Motor decoding from posterior parietal cortex using deep neural networks'
+# by Davide Borra, Matteo Filippini, Mauro Ursino, Patrizia Fattori, and Elisa Magosso (submitted to Neurocomputing, 2022).
+#
+# Author
+# ------
+# Davide Borra, 2022
+###################################################
+
+reaching_m1:
+  n_cells: 138
+  n_classes: 9
+  input_time_length: 60
+reaching_m2:
+  n_cells: 120
+  n_classes: 9
+  input_time_length: 60
+reach_to_grasping_light_m3:
+  n_cells: 93
+  n_classes: 5
+  input_time_length: 60
+reach_to_grasping_light_m4:
+  n_cells: 75
+  n_classes: 5
+  input_time_length: 60
+reach_to_grasping_dark_m3:
+  n_cells: 93
+  n_classes: 5
+  input_time_length: 60
+reach_to_grasping_dark_m4:
+  n_cells: 75
+  n_classes: 5
+  input_time_length: 60
