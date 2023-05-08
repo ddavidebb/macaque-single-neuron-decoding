@@ -25,4 +25,12 @@ Please cite our manuscript if you use our code or results for your research.
 Run the main.py script.
 
 ## Citing
-Soon available.
+```bibtex
+@article{10.1088/1741-2552/acd1b6,
+	author={Borra, Davide and Filippini, Matteo and Ursino, Mauro and Fattori, Patrizia and Magosso, Elisa},
+	title={Motor decoding from the posterior parietal cortex using deep neural networks},
+	journal={Journal of Neural Engineering},
+	url={http://iopscience.iop.org/article/10.1088/1741-2552/acd1b6},
+	year={2023},
+}
+```
