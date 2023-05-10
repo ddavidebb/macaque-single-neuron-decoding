@@ -15,11 +15,10 @@ The decoding performance was investigated under different training conditions, a
 
 The 'main.py' script is a sample script showing how to use the trained networks with the optimal designs (as resulted from Bayesian optimization).
 
-
-Please cite our manuscript if you use our models or results for your research.
-
 ### Prerequisites
 * PyTorch
+
+Please cite our manuscript if you use our models or results for your research.
 
 ## Citing
 ```bibtex
