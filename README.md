@@ -27,7 +27,7 @@ The convolutional neural network design is inspired from an architecture origina
 
 ### Usage
 The 'models.py' script contains also the code needed to design FRNet.
-To use this network, data should be arranged as 3-D input maps of shape (1, n_cells, n_time), where n_cells and n_time denote the number of recorded cells and time samples, respectively. Assuming that data is prepared in this way, with n_cells=93, n_time=60, and n_classes=5 (denoting with n_classes the number of conditions to classify):
+To use this network, data should be arranged as 3-D input maps of shape (1, n_cells, n_time), where n_cells and n_time denote the number of recorded cells and time samples, respectively. Assuming that data is prepared in this way, with n_cells=93, n_time=60, and n_classes=5 (denoting with n_classes the number of conditions to classify), the user can easily define and use FRNet as follows:
 
 ```
 from models import FRNet
