@@ -1,7 +1,10 @@
 # Deep neural networks for decoding reaching and reach-to-grasping from the posterior parietal cortex
 
 The codes of this repository are associated to the journal papers:
-## _Motor decoding from the posterior parietal cortex using deep neural networks_ by Davide Borra, Matteo Filippini, Mauro Ursino, Patrizia Fattori, and Elisa Magosso. Journal of Neural Engineering (2023).
+* _Motor decoding from the posterior parietal cortex using deep neural networks_ by Davide Borra, Matteo Filippini, Mauro Ursino, Patrizia Fattori, and Elisa Magosso. Journal of Neural Engineering (2023).
+* _Convolutional neural networks reveal properties of reach-to-grasp encoding in posterior parietal cortex_ by Davide Borra, Matteo Filippini, Mauro Ursino, Patrizia Fattori, and Elisa Magosso. Computers in Biology and Medicine (2024), currently under review (citing information available soon).
+
+## Motor decoding from the posterior parietal cortex using deep neural networks
 In this study, we compared different deep neural networks (fully-connected neural networks, convolutional neural networks, and recurrent neural networks) when decoding motor states from the neural activity of the posterior parietal cortex of macaques. 
 
 Three different motor decoding tasks were addressed: reaching and reach-to-grasping decoding (this one with two different illumination conditions), involving the classification of different reaching end-points or different grip shapes. 
@@ -17,7 +20,7 @@ The decoding performance was investigated under different training conditions, a
 
 The 'main.py' script is a sample script showing how to use the trained networks with the optimal designs (as resulted from Bayesian optimization).
 
-## _Convolutional neural networks reveal properties of reach-to-grasp encoding in posterior parietal cortex_ by Davide Borra, Matteo Filippini, Mauro Ursino, Patrizia Fattori, and Elisa Magosso. Computers in Biology and Medicine (2024).
+## Convolutional neural networks reveal properties of reach-to-grasp encoding in posterior parietal cortex
 In this study, we used a convolutional neural network for defining an explainable AI framework for analyzing the most relevant cells and time samples involved during reach-to-grasping, from posterior parietal cortex recordings of macaques.
 
 The convolutional neural network design is inspired from an architecture originally proposed for EEG signals (EEGNet, Lawhern et al., 2018, see 'Other references' Section) and was adapted here for decoding single neurons. The network - termed 'FiringRateNet' (FRNet) - was used to decode reach-to-grasping from the posterior parietal cortex (V6A area) of macaques. Furthermore, FRNet decision was explained by using layerwise relevance propagation.
