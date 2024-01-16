@@ -26,11 +26,11 @@ In this study, we used a convolutional neural network for defining an explainabl
 The convolutional neural network design is inspired from an architecture originally proposed for EEG signals (EEGNet, Lawhern et al., 2018, see 'Other references' Section) and was adapted here for decoding single neurons. The network - termed 'FiringRateNet' (FRNet) - was used to decode reach-to-grasping from the posterior parietal cortex (V6A area) of macaques. Furthermore, FRNet decision was explained by using layerwise relevance propagation.
 
 ### Usage
-The 'model.py' script contains the code needed to design the network.
+The 'models.py' script contains also the code needed to design FRNet.
 To use this network, data should be arranged as 3-D input maps of shape (1, n_cells, n_time), where n_cells and n_time denote the number of recorded cells and time samples, respectively. Assuming that data is prepared in this way, with n_cells=93, n_time=60, and n_classes=5 (denoting with n_classes the number of conditions to classify):
 
 ```
-from model import FRNet
+from models import FRNet
 from torchsummary import summary
 
 model = FRNet(n_chans=93, n_classes=5, n_time=60)
