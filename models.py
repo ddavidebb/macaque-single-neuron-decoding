@@ -1,13 +1,170 @@
 """
-Deep neural networks adopted in 'Motor decoding from posterior parietal cortex using deep neural networks'.
-by Davide Borra, Matteo Filippini, Mauro Ursino, Patrizia Fattori, and Elisa Magosso (submitted to Neurocomputing, 2022).
+Codes for defining deep neural networks adopted in:
+- 'Motor decoding from the posterior parietal cortex using deep neural networks' D. Borra, M. Filippini, M. Ursino, P. Fattori, and E. Magosso (Journal of Neural Engineering, 2023).
+- 'Convolutional neural networks reveal properties of reach-to-grasp encoding in posterior parietal cortex' D. Borra, M. Filippini, M. Ursino, P. Fattori, and E. Magosso (Computers in Biology and Medicine, 2024)
 
 Author
 ------
-Davide Borra, 2022
+Davide Borra, 2022-2023
 """
 
 import torch
+import numpy as np
+from torch import nn
+from torch.nn import init
+from src.util import np_to_var
+
+
+def initialize_module(module):
+    """
+    This function initialize a torch module.
+
+    Arguments
+    ---------
+    module: torch.nn.Module
+        Torch module to initialize.
+    """
+    for mod in module.modules():
+        if hasattr(mod, 'weight'):
+            if not ('BatchNorm' in mod.__class__.__name__):
+                init.xavier_uniform_(mod.weight, gain=1)
+            else:
+                init.constant_(mod.weight, 1)
+        if hasattr(mod, 'bias'):
+            if mod.bias is not None:
+                init.constant_(mod.bias, 0)
+
+
+class FRNet(nn.Module):
+    """
+    FRNet.
+
+    Arguments
+    ---------
+    n_cells: int
+        Number of recorded input neurons.
+    n_fm: int
+        Number of input feature maps.
+    n_classes : int
+        Number of classes to decode.
+    n_time : int
+        Number of time steps (bins).
+    K0 : int
+        Number of spatial convolutional kernels.
+    K1 : int
+        Number of temporal convolutional kernels.
+    F1 : tuple
+        Size of temporal kernels.
+    Fp : tuple
+        Size of padding.
+    Sp : tuple
+        Stride of padding.
+    drop_prob : float
+        Dropout probability.
+    use_bn : bool
+        Enable batch normalization.
+    add_output_act : bool
+        Add softmax activation function to output layer.
+    """
+    def __init__(self,
+                 n_cells=93,
+                 n_fm=1,
+                 n_classes=5,
+                 n_time=60,
+                 K0=16,
+                 K1=16,
+                 F1=(1, 21),
+                 Fp=(1, 10),
+                 Sp=(1, 10),
+                 drop_prob=0.5,
+                 use_bn=True,
+                 add_output_act=True
+                 ):
+        super(FRNet, self).__init__()
+
+        self.n_cells = n_cells
+        self.n_fm = n_fm
+        self.n_classes = n_classes
+        self.n_time = n_time
+
+        self.K0 = K0
+        self.K1 = K1
+        self.F1 = F1
+        self.Fp = Fp
+        self.Sp = Sp
+
+        self.drop_prob = drop_prob
+        self.use_bn = use_bn
+
+        self.conv_module = nn.Sequential()
+        self.conv_module.add_module('conv_1',
+                                    nn.Conv2d(self.n_fm, self.K0, (self.n_cells, 1),
+                                              stride=1, bias=False if self.use_bn else True, padding=(0, 0),
+                                              )
+                                    )
+        if self.use_bn:
+            self.conv_module.add_module('bnorm_1', nn.BatchNorm2d(self.K0, momentum=0.01, affine=True, eps=1e-3))
+        self.conv_module.add_module('act_1', torch.nn.ReLU())
+        self.conv_module.add_module('drop_1', nn.Dropout(p=self.drop_prob))
+
+        self.conv_module.add_module('conv_2', nn.Conv2d(
+            self.K0, self.K0, self.F1,
+            stride=1, bias=False if self.use_bn else True, groups=self.K0, padding=(0, (self.F1[-1] // 2))))
+        self.conv_module.add_module('conv_3', nn.Conv2d(
+            self.K0, self.K1, (1, 1),
+            stride=1, bias=False if self.use_bn else True, padding=(0, 0)))
+        if self.use_bn:
+            self.conv_module.add_module('bnorm_3', nn.BatchNorm2d(self.K1, momentum=0.01, affine=True, eps=1e-3))
+        self.conv_module.add_module("act_3", torch.nn.ReLU())
+        self.conv_module.add_module('avg_pool_3', nn.AvgPool2d(
+            kernel_size=self.Fp,
+            stride=self.Sp))
+        self.conv_module.add_module('drop_3', nn.Dropout(p=self.drop_prob))
+
+        out = self.conv_module(np_to_var(np.ones(
+            (1, self.n_fm, self.n_cells, self.n_time),
+            dtype=np.float32)))
+
+        num_input_units_fc_1 = self.num_flat_features(out)
+        self.classifier = nn.Sequential()
+        self.classifier.add_module('fc_1',
+                                   nn.Linear(num_input_units_fc_1, self.n_classes, bias=True,
+                                             )
+                                   )
+        if add_output_act:
+            self.classifier.add_module('logsoftmax', nn.LogSoftmax(dim=1))
+
+        initialize_module(self.conv_module)
+        initialize_module(self.classifier)
+
+    def forward(self, x, ):
+        """
+        Computes forward propagation.
+
+        Arguments
+        ---------
+        x: tensor
+            Tensor containing a batch of examples. Should have shape of (batch_size, 1, n_cells, n_time), where batch_size is torche batch size.
+        """
+        conv_output = self.conv_module(x)
+        classifier_input = conv_output.view(-1, self.num_flat_features(conv_output))
+        classifier_output = self.classifier(classifier_input)
+        return classifier_output
+
+    def num_flat_features(self, x):
+        """
+        Returns the number of flattened features in the input feature maps.
+
+        Arguments
+        ---------
+        x: tensor
+            Tensor containing a batch of examples. Should have shape of (batch_size, n_feature_maps, n_cells, n_time), where batch_size is the batch size and n_feature_maps is the number of feature maps.
+        """
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features
 
 
 class FCNN(torch.nn.Module):
