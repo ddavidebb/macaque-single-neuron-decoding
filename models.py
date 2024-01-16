@@ -1,6 +1,6 @@
 """
 Codes for defining deep neural networks adopted in:
-- 'Motor decoding from the posterior parietal cortex using deep neural networks' D. Borra, M. Filippini, M. Ursino, P. Fattori, and E. Magosso (Journal of Neural Engineering, 2023).
+- 'Motor decoding from the posterior parietal cortex using deep neural networks' D. Borra, M. Filippini, M. Ursino, P. Fattori, and E. Magosso (Journal of Neural Engineering, 2023)
 - 'Convolutional neural networks reveal properties of reach-to-grasp encoding in posterior parietal cortex' D. Borra, M. Filippini, M. Ursino, P. Fattori, and E. Magosso (Computers in Biology and Medicine, 2024)
 
 Author
@@ -12,7 +12,31 @@ import torch
 import numpy as np
 from torch import nn
 from torch.nn import init
-from src.util import np_to_var
+
+
+def np_to_var(X, requires_grad=False, dtype=None):
+    """
+    Function for transforming a numpy array to a `torch.Tensor`.
+    
+    Parameters
+    ----------
+    X: ndarray or list or number
+        Input arrays
+    requires_grad: bool
+        passed on to Variable constructor
+    dtype: numpy dtype, optional
+
+    Returns
+    -------
+    var: `torch.Tensor`
+    """
+    if not hasattr(X, '__len__'):
+        X = [X]
+    X = np.asarray(X)  # transforming to ndarray in case the input is different (e.g., a list)
+    if dtype is not None:
+        X = X.astype(dtype)
+    X_tensor = torch.tensor(X, requires_grad=requires_grad)
+    return X_tensor
 
 
 def initialize_module(module):
@@ -121,9 +145,7 @@ class FRNet(nn.Module):
             stride=self.Sp))
         self.conv_module.add_module('drop_3', nn.Dropout(p=self.drop_prob))
 
-        out = self.conv_module(np_to_var(np.ones(
-            (1, self.n_fm, self.n_cells, self.n_time),
-            dtype=np.float32)))
+        out = self.conv_module(np_to_var(np.ones((1, self.n_fm, self.n_cells, self.n_time), dtype=np.float32)))
 
         num_input_units_fc_1 = self.num_flat_features(out)
         self.classifier = nn.Sequential()
